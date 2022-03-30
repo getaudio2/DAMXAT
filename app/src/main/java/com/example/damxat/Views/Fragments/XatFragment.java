@@ -1,14 +1,22 @@
 package com.example.damxat.Views.Fragments;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -31,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class XatFragment extends Fragment {
 
@@ -42,6 +51,9 @@ public class XatFragment extends Fragment {
     Boolean isXatUser;
     ArrayList<Xat> arrayXats;
     ArrayList<String> arrayUsers;
+    private final int RecordAudioRequestCode = 1;
+    ArrayList<String> result;
+    EditText txtMessage;
 
     XatGroup group;
     String groupName;
@@ -62,6 +74,7 @@ public class XatFragment extends Fragment {
         //Agafa els arguments del bundle per comprovar si el xat es tracta d'un entre usuaris o d'un grup
         bundle = getArguments();
 
+
         if(bundle.getString("type").equals("xatuser")){
             isXatUser = true;
             getUserXat();
@@ -74,7 +87,15 @@ public class XatFragment extends Fragment {
 
 
         ImageButton btnMessage = view.findViewById(R.id.btnMessage);
-        EditText txtMessage = view.findViewById(R.id.txtMessage);
+        txtMessage = view.findViewById(R.id.txtMessage);
+
+        //Voice recorder permissions
+        if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.RECORD_AUDIO},RecordAudioRequestCode);
+            }
+        }
+
 
         //Click listener del botó d'enviar missatges
         btnMessage.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +109,20 @@ public class XatFragment extends Fragment {
                     Toast.makeText(getContext(), "You can't send empty message", Toast.LENGTH_SHORT).show();
                 }
                 txtMessage.setText("");
+            }
+        });
+
+        btnMessage.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View view) {
+                Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hola, digues quelcom!");
+
+                startActivityForResult(speechRecognizerIntent, RecordAudioRequestCode);
+                return false;
             }
         });
 
@@ -228,5 +263,24 @@ public class XatFragment extends Fragment {
         RecyclerXatAdapter adapter = new RecyclerXatAdapter(arrayXats, getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RecordAudioRequestCode) {
+            result=data.getStringArrayListExtra( RecognizerIntent.EXTRA_RESULTS );
+            txtMessage.setText(result.get(0));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RecordAudioRequestCode && grantResults.length > 0 ){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(getActivity().getApplicationContext(),"Permission Granted",Toast.LENGTH_SHORT).show();
+        }
     }
 }
