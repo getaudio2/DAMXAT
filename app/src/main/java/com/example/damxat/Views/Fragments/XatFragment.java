@@ -112,6 +112,7 @@ public class XatFragment extends Fragment {
             }
         });
 
+        //Long click listener del botó message per pasar de audio a text
         btnMessage.setOnLongClickListener(new View.OnLongClickListener() {
 
             @Override
