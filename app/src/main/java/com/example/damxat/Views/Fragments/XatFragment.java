@@ -30,6 +30,7 @@ import com.example.damxat.Model.XatGroup;
 import com.example.damxat.R;
 import com.example.damxat.Views.Activities.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +57,7 @@ public class XatFragment extends Fragment {
     private final int RecordAudioRequestCode = 1;
     ArrayList<String> result;
     EditText txtMessage;
+    Task<String> firebaseMessagingToken;
 
     XatGroup group;
     String groupName;
@@ -78,7 +80,6 @@ public class XatFragment extends Fragment {
         //Agafa els arguments del bundle per comprovar si el xat es tracta d'un entre usuaris o d'un grup
         bundle = getArguments();
 
-
         if(bundle.getString("type").equals("xatuser")){
             isXatUser = true;
             getUserXat();
@@ -92,6 +93,22 @@ public class XatFragment extends Fragment {
 
         ImageButton btnMessage = view.findViewById(R.id.btnMessage);
         txtMessage = view.findViewById(R.id.txtMessage);
+
+        firebaseMessagingToken = FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.i(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        Log.i(TAG, token);
+                        Toast.makeText(getActivity(), token, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         //Voice recorder permissions
         if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
@@ -288,23 +305,4 @@ public class XatFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(),"Permission Granted",Toast.LENGTH_SHORT).show();
         }
     }
-
-    FirebaseMessaging.getInstance().getToken()
-    .addOnCompleteListener(new OnCompleteListener<String>() {
-        @Override
-        public void onComplete(@NonNull Task<String> task) {
-            if (!task.isSuccessful()) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                return;
-            }
-
-            // Get new FCM registration token
-            String token = task.getResult();
-
-            // Log and toast
-            String msg = getString(R.string.msg_token_fmt, token);
-            Log.d(TAG, msg);
-            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-        }
-    });
 }
