@@ -29,6 +29,7 @@ import com.example.damxat.Model.Xat;
 import com.example.damxat.Model.XatGroup;
 import com.example.damxat.R;
 import com.example.damxat.Views.Activities.MainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +37,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +59,8 @@ public class XatFragment extends Fragment {
 
     XatGroup group;
     String groupName;
+
+    private static final String TAG = "MyFirebaseMsgService";
 
     public XatFragment() {
         // Required empty public constructor
@@ -284,4 +288,23 @@ public class XatFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(),"Permission Granted",Toast.LENGTH_SHORT).show();
         }
     }
+
+    FirebaseMessaging.getInstance().getToken()
+    .addOnCompleteListener(new OnCompleteListener<String>() {
+        @Override
+        public void onComplete(@NonNull Task<String> task) {
+            if (!task.isSuccessful()) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                return;
+            }
+
+            // Get new FCM registration token
+            String token = task.getResult();
+
+            // Log and toast
+            String msg = getString(R.string.msg_token_fmt, token);
+            Log.d(TAG, msg);
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+        }
+    });
 }
