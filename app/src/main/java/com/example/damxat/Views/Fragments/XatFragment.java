@@ -24,10 +24,15 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.damxat.Adapter.RecyclerXatAdapter;
+import com.example.damxat.ApiClient;
+import com.example.damxat.ApiInterface;
 import com.example.damxat.Model.User;
 import com.example.damxat.Model.Xat;
 import com.example.damxat.Model.XatGroup;
+import com.example.damxat.NotificationModel;
+import com.example.damxat.PushNotification;
 import com.example.damxat.R;
+import com.example.damxat.ResponseModel;
 import com.example.damxat.Views.Activities.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,6 +48,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+
+import retrofit2.Callback;
 
 public class XatFragment extends Fragment {
 
@@ -276,6 +283,25 @@ public class XatFragment extends Fragment {
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
                 Log.w("damxat", "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+    private void sendNotificationToUser(String token) {
+        PushNotification pushNotification = new PushNotification(token, new NotificationModel("Title", "Body", "Image"));
+
+        ApiInterface apiService =  ApiClient.getClient().create(ApiInterface.class);
+        retrofit2.Call<ResponseModel> responseBodyCall = apiService.postNotification(pushNotification);
+
+        responseBodyCall.enqueue(new Callback<ResponseModel>() {
+            @Override
+            public void onResponse(retrofit2.Call<ResponseModel> call, retrofit2.Response<ResponseModel> response) {
+                Log.d(TAG,"Successfully notification send by using retrofit.");
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ResponseModel> call, Throwable t) {
+
             }
         });
     }
