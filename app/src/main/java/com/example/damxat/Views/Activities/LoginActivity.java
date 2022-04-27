@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,8 +37,8 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = loginEmail.getText().toString();
-                String password = loginPassword.getText().toString();
+                String email = loginEmail.getText().toString().trim();
+                String password = loginPassword.getText().toString().trim();
 
                 //Comprova si el camp de text de l'email o del password estan buits
                 if(email.isEmpty() || password.isEmpty()){

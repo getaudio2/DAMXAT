@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,6 +60,10 @@ public class RegisterActivity extends AppCompatActivity {
 
     //Mètode per registrar a l'usuari al firebase amb les dades obtingudes dels camps de text
     public void registerUser(String username, String email, String password){
+        username.trim();
+        email.trim();
+        password.trim();
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                    @Override
