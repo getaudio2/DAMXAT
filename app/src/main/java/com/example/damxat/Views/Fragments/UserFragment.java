@@ -76,7 +76,7 @@ public class UserFragment extends Fragment {
 
                 RecyclerUserAdapter adapter = new RecyclerUserAdapter(arrayUsers, getContext());
                 recyclerUsers.setAdapter(adapter);
-                                                              recyclerUsers.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                recyclerUsers.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
             }
 
