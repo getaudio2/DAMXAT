@@ -32,4 +32,12 @@ public class User {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

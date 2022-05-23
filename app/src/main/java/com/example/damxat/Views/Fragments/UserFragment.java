@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,6 +70,10 @@ public class UserFragment extends Fragment {
                 for(DataSnapshot snapshot: dataSnapshot.getChildren()){
                     User user = snapshot.getValue(User.class);
 
+                    if (user.getId() == null) {
+                        continue;
+                    }
+
                     if(!user.getId().equals(firebaseUser.getUid())){
                         arrayUsers.add(user);
                     }
@@ -76,7 +81,7 @@ public class UserFragment extends Fragment {
 
                 RecyclerUserAdapter adapter = new RecyclerUserAdapter(arrayUsers, getContext());
                 recyclerUsers.setAdapter(adapter);
-                recyclerUsers.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                //recyclerUsers.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
             }
 
